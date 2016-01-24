@@ -630,6 +630,7 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
   const or_options_t *options = get_options();
   rend_service_descriptor_t *parsed;
   char desc_id[DIGEST_LEN];
+  char service_id[REND_SERVICE_ID_LEN_BASE32+1];
   char *intro_content;
   size_t intro_size;
   size_t encoded_size;
@@ -656,6 +657,8 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
     /* For pretty log statements. */
     base32_encode(desc_id_base32, sizeof(desc_id_base32),
                   desc_id, DIGEST_LEN);
+	log_notice(LD_REND, "New v2 HS desc: DESC_ID %s SERVICE_ID %s",
+			safe_str_client(desc_id_base32), safe_str_client(service_id));
     /* Is desc ID in the range that we are (directly or indirectly) responsible
      * for? */
     if (!hid_serv_responsible_for_desc_id(desc_id)) {
@@ -775,6 +778,9 @@ rend_cache_store_v2_desc_as_service(const char *desc)
     goto err;
   }
 
+    /* Log the received hidden service descriptor */
+  log_notice(LD_REND, "Got a new v0 hidden service descriptor to store, SERVICE_ID '%s'", 
+		  safe_str_client(service_id));
   /* Do we already have a newer descriptor? Allow new descriptors with a
      rounded timestamp equal to or newer than the current descriptor */
   e = (rend_cache_entry_t*) strmap_get_lc(rend_cache_local_service,

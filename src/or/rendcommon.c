@@ -410,6 +410,43 @@ rend_desc_v2_is_parsable(rend_encoded_v2_service_descriptor_t *desc)
   return (res >= 0);
 }
 
+/** Attempt to parse the given <b>desc_str</b> and provide the base32 encoded service_id return true if this
+* succeeds, false otherwise. */
+int
+rend_desc_v2_parse_service_id(const char *desc, char *out)
+{
+  rend_service_descriptor_t *parsed = NULL;
+  char desc_id[DIGEST_LEN];
+  char *intro_content = NULL;
+  size_t intro_size;
+  size_t encoded_size;
+  const char *next_desc;
+  int retval = 0;
+
+  /* Parse the descriptor. */
+  if (rend_parse_v2_service_descriptor(&parsed, desc_id, &intro_content,
+                                       &intro_size, &encoded_size,
+                                       &next_desc, desc, 0) < 0) {
+    log_warn(LD_REND, "Could not parse descriptor.");
+    retval = -2;
+    goto err;
+  }
+  /* Compute service ID from public key. */
+  if (rend_get_service_id(parsed->pk, out)<0) {
+    log_warn(LD_REND, "Couldn't compute service ID.");
+    retval = -2;
+    goto err;
+  }
+  
+  rend_service_descriptor_free(parsed);
+  tor_free(intro_content);
+  
+  err:
+    rend_service_descriptor_free(parsed);
+    tor_free(intro_content);
+    return retval;
+}
+
 /** Free the storage held by an encoded v2 service descriptor. */
 void
 rend_encoded_v2_service_descriptor_free(

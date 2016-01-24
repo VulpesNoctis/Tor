@@ -44,6 +44,7 @@ void rend_encoded_v2_service_descriptor_free(
 void rend_intro_point_free(rend_intro_point_t *intro);
 
 int rend_valid_service_id(const char *query);
+int rend_desc_v2_parse_service_id(const char *desc, char *out);
 int rend_valid_descriptor_id(const char *query);
 int rend_encode_v2_descriptors(smartlist_t *descs_out,
                                rend_service_descriptor_t *desc, time_t now,
