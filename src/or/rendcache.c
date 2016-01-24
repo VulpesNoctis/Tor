@@ -657,6 +657,10 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
     /* For pretty log statements. */
     base32_encode(desc_id_base32, sizeof(desc_id_base32),
                   desc_id, DIGEST_LEN);
+	    /* Log the received hidden service descriptor */            
+	if (rend_get_service_id(parsed->pk, service_id)<0) {
+		log_warn(LD_BUG,"Couldn't compute service ID.");
+	}
 	log_notice(LD_REND, "New v2 HS desc: DESC_ID %s SERVICE_ID %s",
 			safe_str_client(desc_id_base32), safe_str_client(service_id));
     /* Is desc ID in the range that we are (directly or indirectly) responsible
