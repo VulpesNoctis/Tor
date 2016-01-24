@@ -663,6 +663,9 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
 	}
 	log_notice(LD_REND, "New v2 HS desc: DESC_ID %s SERVICE_ID %s",
 			safe_str_client(desc_id_base32), safe_str_client(service_id));
+	log_notice(LD_REND, "Descriptor:\n%s",
+			safe_str_client(desc));
+
     /* Is desc ID in the range that we are (directly or indirectly) responsible
      * for? */
     if (!hid_serv_responsible_for_desc_id(desc_id)) {
