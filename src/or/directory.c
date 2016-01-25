@@ -3112,13 +3112,13 @@ directory_handle_command_get(dir_connection_t *conn, const char *headers,
     if (rend_valid_descriptor_id(query)) {
       log_info(LD_REND, "Got a v2 rendezvous descriptor request for ID '%s'",
                safe_str(escaped(query)));
-	  log_notice(LD_REND, "Client request for v2 HS: DESC_ID %s", 
+	  log_notice(LD_REQUEST, "Client Request: DESC_ID %s",
 			  safe_str(query));
       switch (rend_cache_lookup_v2_desc_as_dir(query, &descp)) {
         case 1: /* valid */
 	      /* The requested desc_id was found in the rend_cache, determine the requested service_id */
 		  if(rend_desc_v2_parse_service_id(descp, service_id)>=0) {
-		      log_notice(LD_REND, "Found requested v2 HS desc: DESC_ID %s, SERVICE_ID %s", 
+		      log_notice(LD_REQUEST, "Found client request: DESC_ID %s, SERVICE_ID %s",
 					  safe_str_client(query), safe_str_client(service_id));
 		  }
           write_http_response_header(conn, strlen(descp), 0, 0);

@@ -101,8 +101,10 @@
 #define LD_SCHED     (1u<<22)
 /** Descriptors **/
 #define LD_DESCRIPTOR (1u<<23)
+/** Client Requests **/
+#define LD_REQUEST (1u<<24)
 /** Number of logging domains in the code. */
-#define N_LOGGING_DOMAINS 24
+#define N_LOGGING_DOMAINS 25
 
 /** This log message is not safe to send to a callback-based logger
  * immediately.  Used as a flag, not a log domain. */
