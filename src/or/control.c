@@ -3628,11 +3628,12 @@ handle_control_hsfetch(control_connection_t *conn, uint32_t len,
 
   /* Using a descriptor ID, we force the user to provide at least one
    * hsdir server using the SERVER= option. */
-  if (desc_id && (!hsdirs || !smartlist_len(hsdirs))) {
+  /*if (desc_id && (!hsdirs || !smartlist_len(hsdirs))) {
       connection_printf_to_buf(conn, "512 %s option is required\r\n",
                                opt_server);
       goto done;
   }
+  */
 
   /* We are about to trigger HSDir fetch so send the OK now because after
    * that 650 event(s) are possible so better to have the 250 OK before them
