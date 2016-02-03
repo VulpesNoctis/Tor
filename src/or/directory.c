@@ -3117,10 +3117,8 @@ directory_handle_command_get(dir_connection_t *conn, const char *headers,
       switch (rend_cache_lookup_v2_desc_as_dir(query, &descp)) {
         case 1: /* valid */
 	      /* The requested desc_id was found in the rend_cache, determine the requested service_id */
-		  if(rend_desc_v2_parse_service_id(descp, service_id)>=0) {
-		      log_notice(LD_REQUEST, "Found client request: DESC_ID %s, SERVICE_ID %s",
-					  safe_str_client(query), safe_str_client(service_id));
-		  }
+          log_notice(LD_REQUEST, "Found client request: DESC_ID %s",
+					  safe_str(query));
           write_http_response_header(conn, strlen(descp), 0, 0);
           connection_write_to_buf(descp, strlen(descp), TO_CONN(conn));
           break;
