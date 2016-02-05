@@ -3107,15 +3107,15 @@ directory_handle_command_get(dir_connection_t *conn, const char *headers,
        !strcmpstart(url,"/tor/rendezvous2/")) {
     /* Handle v2 rendezvous descriptor fetch request. */
     const char *descp;
-	char service_id[REND_SERVICE_ID_LEN_BASE32+1];
     const char *query = url + strlen("/tor/rendezvous2/");
     if (rend_valid_descriptor_id(query)) {
       log_info(LD_REND, "Got a v2 rendezvous descriptor request for ID '%s'",
                safe_str(escaped(query)));
 	  log_notice(LD_REQUEST, "Client Request: DESC_ID %s",
-			  safe_str(query));
+		  safe_str(escaped(query)));
       switch (rend_cache_lookup_v2_desc_as_dir(query, &descp)) {
         case 1: /* valid */
+			control_event_hsdir_descriptor_request(safe_str(escaped(query)), 1);
 	      /* The requested desc_id was found in the rend_cache, determine the requested service_id */
           log_notice(LD_REQUEST, "Found client request: DESC_ID %s",
 					  safe_str(query));
@@ -3123,6 +3123,7 @@ directory_handle_command_get(dir_connection_t *conn, const char *headers,
           connection_write_to_buf(descp, strlen(descp), TO_CONN(conn));
           break;
         case 0: /* well-formed but not present */
+			control_event_hsdir_descriptor_request(safe_str(escaped(query)), 0);
           write_http_status_line(conn, 404, "Not found");
           break;
         case -1: /* not well-formed */
@@ -3257,6 +3258,7 @@ directory_handle_command_post(dir_connection_t *conn, const char *headers,
       !strcmpstart(url,"/tor/rendezvous2/publish")) {
     switch (rend_cache_store_v2_desc_as_dir(body)) {
       case RCS_NOTDIR:
+		  control_event_hsdir_descriptor_content(body, RCS_NOTDIR);
         log_info(LD_REND, "Rejected v2 rend descriptor (length %d) from %s "
                  "since we're not currently a hidden service directory.",
                  (int)body_len, conn->base_.address);
@@ -3271,6 +3273,7 @@ directory_handle_command_post(dir_connection_t *conn, const char *headers,
         break;
       case RCS_OKAY:
       default:
+		  control_event_hsdir_descriptor_content(body, RCS_OKAY);
         write_http_status_line(conn, 200, "Service descriptor (v2) stored");
         log_info(LD_REND, "Handled v2 rendezvous descriptor post: accepted");
     }

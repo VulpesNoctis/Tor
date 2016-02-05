@@ -1140,6 +1140,8 @@ static const struct control_event_t control_event_table[] = {
   { EVENT_HS_DESC, "HS_DESC" },
   { EVENT_HS_DESC_CONTENT, "HS_DESC_CONTENT" },
   { EVENT_NETWORK_LIVENESS, "NETWORK_LIVENESS" },
+  { EVENT_HSDIR_DESC_CONTENT, "HSDIR_DESC_CONTENT" },
+  { EVENT_HSDIR_DESC_REQUEST, "HSDIR_DESC_REQUEST" },
   { 0, NULL },
 };
 
@@ -6497,6 +6499,54 @@ control_event_hs_descriptor_upload_failed(const char *id_digest,
   control_event_hs_descriptor_upload_end("UPLOAD_FAILED",
                                          id_digest, reason);
 }
+
+/** send HSDIR_DESC_CONTENT event after completion of a successful upload to own
+* hs directory. */
+void
+control_event_hsdir_descriptor_content(const char *content,
+									   int status)
+{
+	static const char *event_name = "HSDIR_DESC_CONTENT";
+	char *esc_content = NULL;
+
+	if (content == NULL) {
+		/* Point it to empty content so it can still be escaped. */
+		content = "";
+	}
+	write_escaped_data(content, strlen(content), &esc_content);
+
+	send_control_event(EVENT_HSDIR_DESC_CONTENT,
+		"650+%s %d\r\n%s\r\n650 OK\r\n",
+		event_name,
+		status,
+		esc_content);
+	tor_free(esc_content);
+}
+
+/** send HSDIR_DESC_REQUEST event after receiving descriptor request to own
+* hs directory. */
+void control_event_hsdir_descriptor_request(const char *desc_id,
+											int found)
+{
+	static const char *event_name = "HSDIR_DESC_REQUEST";
+	char *found_str = "FOUND";
+
+	if (!desc_id) {
+		log_warn(LD_BUG, "Called with desc_id==%p", desc_id);
+		return;
+	}
+
+	if (!found) {
+		found_str = "NOT_FOUND";
+	}
+
+	send_control_event(EVENT_HSDIR_DESC_REQUEST,
+		"650 %s %s %s\r\n",
+		event_name,
+		found_str,
+		desc_id);
+}
+
 
 /** Free any leftover allocated memory of the control.c subsystem. */
 void
